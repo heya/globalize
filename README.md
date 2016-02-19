@@ -210,6 +210,9 @@ a dot or `[]` notation (whichever is more appropriate). Important details:
 * All modules are checked against `browserGlobals`, and if it is there, the specified variable is used.
 * Otherwise all parents are checked agaist `browserGlobals`, and the closest parent's variable is used for the rest as an anchor.
 
+If a module depends on a special module called `module`, a new object is generated and two its properties `id` and `filename` is set to
+a name of the current module. That way a module may report its name in errors and exceptions. Example #5 below shows a generated code.
+
 #### Example #4: multiple parents
 
 ```js
