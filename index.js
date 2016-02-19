@@ -16,8 +16,8 @@ var VarSet   = require('./VarSet');
 
 var heyaUmd = ['/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})'],
 	doubleQuotedString = /"((?:\\"|[^"])*)"/g,
-	singleQuotedString = /'((?:\\'|[^'])*')/g,
-	startPattern = /^\s*\(\s*\[\s*/g,
+	singleQuotedString = /'((?:\\'|[^'])*)'/g,
+	startPattern = /\s*\(\s*\[\s*/g,
 	middlePattern = /\s*,\s*/g,
 	endPattern = /\s*\]/g;
 
@@ -59,7 +59,8 @@ function match (pattern, text, index) {
 function processFile (from) {
 	var name = replacements.hasOwnProperty(from) ? replacements[from] : from,
 		module = './' + from.slice(0, -3),
-		to = path.join(globals.getDist(), from);
+		to = path.join(globals.getDist(), from),
+		deps, prologue;
 
 	// get source
 	var text = fs.readFileSync(name, 'utf8').split(/\r?\n/);
@@ -68,26 +69,36 @@ function processFile (from) {
 		// check if it is a Heya UMD
 		if (heyaUmd.some(function (umd) { return umd === text[0]; })) {
 			// process the second line
-			var deps = parseDependencies(text[1], 0);
+			deps = parseDependencies(text[1], 0);
 			if (!deps) {
 				console.error('ERROR: Heya UMD is detected in', name, '- we cannot parse the dependency list - skipping.');
 				return;
 			}
 			// generate new prologue
-			text[0] = generatePrologue(deps, module);
+			prologue = generatePrologue(deps, module);
+			if (!prologue) {
+				console.error('ERROR: Heya UMD is detected in', name, '- some dependencies are unknown - skipping.');
+				return;
+			}
+			text[0] = prologue;
 			break;
 		}
 
 		// check if it is a simple define()
 		if (/^define\b/.test(text[0])) {
 			// process the first line
-			var deps = parseDependencies(text[0], 6);
+			deps = parseDependencies(text[0], 6);
 			if (!deps) {
 				console.error('ERROR: simple define() is detected in', name, '- we cannot parse the dependency list - skipping.');
 				return;
 			}
 			// generate new prologue
-			text[0] = generatePrologue(deps, module) + '\n' + text[0].slice(6);
+			prologue = generatePrologue(deps, module);
+			if (!prologue) {
+				console.error('ERROR: simple define() is detected in', name, '- some dependencies are unknown - skipping.');
+				return;
+			}
+			text[0] = prologue + '\n' + text[0].slice(6);
 			break;
 		}
 
@@ -171,7 +182,7 @@ function generatePrologue (deps, name) {
 	var assignment = variables.buildSetter(g),
 		module = needModule ? 'm={};m.id=m.filename=' + JSON.stringify(name) + ';' : '';
 
-	var prologue = '(function(_, f';
+	var prologue = '(function(_,f';
 	if (/^g=/.test(assignment)) {
 		prologue += ',g';
 	}

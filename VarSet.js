@@ -10,7 +10,10 @@ function VarSet () {
 
 VarSet.prototype = {
 	add: function (path) {
-		toParts(path).reduce(function (root, part) {
+		toParts(path).reduce(function (root, part, index) {
+			if (!index && part.charAt(0) === '!') {
+				part = part.slice(1);
+			}
 			if (!root.hasOwnProperty(part)) {
 				root[part] = {};
 			}
@@ -18,7 +21,10 @@ VarSet.prototype = {
 		}, this.root);
 	},
 	buildGetter: function (path) {
-		return toParts(path).reduce(function (acc, part) {
+		return toParts(path).reduce(function (acc, part, index) {
+			if (!index && part.charAt(0) === '!') {
+				part = part.slice(1);
+			}
 			return acc + (isId.test(part) ? '.' + part : '[' + JSON.stringify(part) + ']');
 		}, '');
 	},
@@ -45,7 +51,7 @@ VarSet.prototype = {
 		// create objects for the rest but the last one
 		s += parts.slice(prefixSize, parts.length - 1).reduce(function (acc, part) {
 			var accessor = this.buildGetter(part);
-			return acc + 'g' + accessor + '=g' + accessor + '||{};';
+			return acc + 'g=g' + accessor + '||(g' + accessor + '={});';
 		}.bind(this), '');
 
 		// assign to the last one
