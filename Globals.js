@@ -72,8 +72,8 @@ Globals.prototype = {
 		}
 
 		// undeclared module
-		console.error('ERROR: external module', name, 'is undeclared.');
-		return '';
+		console.warn('WARNING: external module', name, 'is undeclared!', parts[0], 'is used as a global variable of its package');
+		return parts.join('.');
 	}
 };
 
