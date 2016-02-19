@@ -19,7 +19,8 @@ var heyaUmd = ['/* UMD.define */ (typeof define=="function"&&define||function(d,
 	singleQuotedString = /'((?:\\'|[^'])*)'/g,
 	startPattern = /\s*\(\s*\[\s*/g,
 	middlePattern = /\s*,\s*/g,
-	endPattern = /\s*\]/g;
+	endPattern = /\s*\]/g,
+	definePattern = /^\s*define\b\s*/g;
 
 
 // fetch JSON files
@@ -33,7 +34,7 @@ var replacements = getReplacements(packageJson);
 var globals = new Globals(packageJson);
 
 // construct a list of files
-var files = getFiles(packageJson, bowerJson, globals.getDist());
+var files = getFiles(bowerJson, globals.getDist());
 
 // go over files
 files.forEach(processFile);
@@ -62,6 +63,11 @@ function processFile (from) {
 		to = path.join(globals.getDist(), from),
 		deps, prologue;
 
+	if (!name) {
+		// skip it
+		return;
+	}
+
 	// get source
 	var text = fs.readFileSync(name, 'utf8').split(/\r?\n/);
 
@@ -85,9 +91,10 @@ function processFile (from) {
 		}
 
 		// check if it is a simple define()
-		if (/^define\b/.test(text[0])) {
+		definePattern.lastIndex = 0;
+		if (definePattern.test(text[0])) {
 			// process the first line
-			deps = parseDependencies(text[0], 6);
+			deps = parseDependencies(text[0], definePattern.lastIndex);
 			if (!deps) {
 				console.error('ERROR: simple define() is detected in', name, '- we cannot parse the dependency list - skipping.');
 				return;
@@ -98,7 +105,7 @@ function processFile (from) {
 				console.error('ERROR: simple define() is detected in', name, '- some dependencies are unknown - skipping.');
 				return;
 			}
-			text[0] = prologue + '\n' + text[0].slice(6);
+			text[0] = prologue + '\n' + text[0].slice(definePattern.lastIndex);
 			break;
 		}
 

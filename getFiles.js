@@ -52,7 +52,7 @@ function normalizePattern (pattern) {
 }
 
 
-module.exports = function (packageJson, bowerJson, dist) {
+module.exports = function (bowerJson, dist) {
 	var dict = new Dict(), files = glob.sync('**/*.js');
 
 	dict.add(files);
