@@ -210,7 +210,7 @@ a dot or `[]` notation (whichever is more appropriate). Important details:
 * All modules are checked against `browserGlobals`, and if it is there, the specified variable is used.
 * Otherwise all parents are checked agaist `browserGlobals`, and the closest parent's variable is used for the rest as an anchor.
 
-Example:
+#### Example #4: multiple parents
 
 ```js
 {
@@ -236,6 +236,97 @@ Given this map we can resolve following modules like that:
 
 External modules are resolved the same way as local modules, but they require that at least top-level package names were defined,
 because they cannot use `!root` to form a name.
+
+#### Example #5: transforms
+
+This is complete example, which shows original and transformed sources. The config is:
+
+```js
+{
+  // ... package.json settings ...
+  "browserGlobals": {
+    "!root": "heya.example",
+    "boom":  "BOOM",
+    "./d":   "!heya.D",
+    "./f":   "!heya.F"
+  },
+  // ... more package.json settings ...
+}
+```
+
+`a.js` was copied to `dist/a.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+(["./b", "./c"], function(b, c){});
+
+// after
+(function(_,f){window.heya.example.a=f(window.heya.example.b,window.heya.example.c);})
+(["./b", "./c"], function(b, c){});
+```
+
+`b.js` was copied to `dist/b.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+(["./c"], function(c){});
+
+// after
+(function(_,f){window.heya.example.b=f(window.heya.example.c);})
+(["./c"], function(c){});
+```
+
+`c.js` is copied to `dist/c.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+([], function(){});
+
+// after
+(function(_,f,g){g=window;g=g.heya||(g.heya={});g=g.example||(g.example={});g.c=f();})
+([], function(){});
+```
+
+`d.js` is copied to `dist/d.js` (note that this file includes `module` object, two modules from a declared external module `boom`,
+and an undeclared one `wham!` &mdash; the undeclared one will generate a warning):
+
+```js
+// before
+define(['module', 'boom', 'boom/Hello-World', 'wham!'], function(module, boom, hello, wham){});
+
+// after
+(function(_,f,m){m={};m.id=m.filename="./d";f(m,window.BOOM,window.BOOM["Hello-World"],window["wham!"]);})
+(['module', 'boom', 'boom/Hello-World', 'wham!'], function(module, boom, hello, wham){});
+```
+
+`e.js` is copied to `dist/e.js`:
+
+```js
+// before
+define(['./d'], function(d){});
+
+// after
+(function(_,f){window.heya.example.e=f(window.heya.D);})
+(['./d'], function(d){});
+```
+
+`f.js` is copied to `dist/f.js`:
+
+```js
+// before
+define(["./b", "./c"], function(b, c){});
+
+// after
+(function(_,f){f(window.heya.example.b,window.heya.example.c);})
+(["./b", "./c"], function(b, c){});
+```
+
+As can be seen, the same module functions are used with new prologues, which replaces `define()` or an Heya-style UMD prologue,
+which itself approximates `define()` as well. New prologues form identical arguments using globals, and assign their results to
+correct global variables.
 
 ## Versions
 
