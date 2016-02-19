@@ -46,7 +46,7 @@ function getJson (name) {
 	try {
 		return JSON.parse(fs.readFileSync(name));
 	} catch (e) {
-		console.warn('WARN: can\'t use', name, '-', e.message);
+		console.warn('WARNING: can\'t use', name, '-', e.message);
 	}
 	return null;
 }
