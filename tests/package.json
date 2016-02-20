@@ -1,0 +1,17 @@
+{
+  "name": "heya-globalize-test",
+  "private": true,
+  "version": "1.0.0",
+  "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
+  "license": "BSD-3-Clause",
+  "browserGlobals": {
+    "!root": "heya.example",
+    "!dist": "out",
+    "boom": "BOOM",
+    "./d": "!heya.D",
+    "./f": "!heya.F"
+  },
+  "browser": {
+    "c.js": "shim.js"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "ignore": [
+    "prologue.js",
+    "epilogue.js",
+    "shim.js",
+    "tests.js",
+    "test-module.js"
+  ]
+}
