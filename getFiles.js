@@ -66,9 +66,9 @@ module.exports = function (bowerJson, dist) {
 				if (!/^\*\*\//.test(pattern) && pattern.charAt(0) !== '/') {
 					pattern = '**/' + pattern;
 				}
-				dict.removeFromDict(pattern);
+				dict.remove(pattern);
 				if (!/\/\*\*$/.test(pattern)) {
-					dict.removeFromDict(pattern + '/**');
+					dict.remove(pattern + '/**');
 				}
 			}
 		});
