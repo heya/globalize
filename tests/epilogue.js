@@ -1,3 +1,6 @@
+// end: generated modules that use globals
+
+// the main test that checks all modules
 module.exports = function () {
 	if (window.heya.example.a() !== 'a') return false;
 	if (window.heya.example.b() !== 'b') return false;

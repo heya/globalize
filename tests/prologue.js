@@ -7,3 +7,5 @@ var window = {};
 window.BOOM                = function () { return 'boom'; };
 window.BOOM['Hello-World'] = function () { return 'helo'; };
 window['wham!']            = function () { return 'wham'; };
+
+// begin: generated modules that use globals
