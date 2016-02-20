@@ -6,6 +6,10 @@
   "scripts": {
     "test": "cd tests && node ../index.js && node tests.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/heya/globalize.git"
+  },
   "keywords": [
     "source transform",
     "UMD",
