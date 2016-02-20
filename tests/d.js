@@ -5,7 +5,7 @@ define(['module', 'boom', 'boom/Hello-World', 'wham!'], function(module, boom, h
 		if (boom() !== 'boom') return false;
 		if (helo() !== 'helo') return false;
 		if (wham() !== 'wham') return false;
-		if (module.id !== './d') return false;
+		if (!/\bd\.js$/.test(module.id)) return false;
 		return 'd';
 	};
 	return null;

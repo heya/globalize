@@ -81,7 +81,7 @@ function processFile (from) {
 				return;
 			}
 			// generate new prologue
-			prologue = generatePrologue(deps, module);
+			prologue = generatePrologue(deps, module, name);
 			if (!prologue) {
 				console.error('ERROR: Heya UMD is detected in', name, '- some dependencies are unknown - skipping.');
 				return;
@@ -100,7 +100,7 @@ function processFile (from) {
 				return;
 			}
 			// generate new prologue
-			prologue = generatePrologue(deps, module);
+			prologue = generatePrologue(deps, module, name);
 			if (!prologue) {
 				console.error('ERROR: simple define() is detected in', name, '- some dependencies are unknown - skipping.');
 				return;
@@ -166,7 +166,7 @@ function parseDependencies (text, index) {
 	return deps;
 }
 
-function generatePrologue (deps, name) {
+function generatePrologue (deps, module, name) {
 	// prepare global variables
 	var variables = new VarSet(), needModule = false, g;
 	for (var i = 0; i < deps.length; ++i) {
@@ -181,7 +181,7 @@ function generatePrologue (deps, name) {
 		}
 	}
 
-	g = globals.getGlobalByModule(name);
+	g = globals.getGlobalByModule(module);
 	if (!g) {
 		return '';
 	}
