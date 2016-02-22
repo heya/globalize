@@ -7,15 +7,15 @@ var path = require('path');
 var CWD = process.cwd();
 
 
-function Globals (packageJson) {
+function Globals (browserGlobals, name) {
 	this.globals = {};
 
-	if (packageJson && packageJson.browserGlobals) {
-		this.globals = packageJson.browserGlobals || {};
+	if (browserGlobals) {
+		this.globals = browserGlobals || {};
 	}
 
 	if (!this.globals['!root']) {
-		this.globals['!root'] = packageJson.name;
+		this.globals['!root'] = name;
 	}
 
 	if (!this.globals['!dist']) {
@@ -30,7 +30,7 @@ Globals.prototype = {
 	getDist: function () {
 		return this.globals['!dist'];
 	},
-	getGlobalByModule: function (name) {
+	getGlobalByModule: function (name, silent) {
 		if (name.charAt(0) === '.') {
 			// local file
 			var fullName = path.join(CWD, name);
@@ -72,7 +72,9 @@ Globals.prototype = {
 		}
 
 		// undeclared module
-		console.warn('WARNING: external module', name, 'is undeclared!', parts[0], 'is used as a global variable of its package');
+		if (!silent) {
+			console.warn('WARNING: external module', name, 'is undeclared!', parts[0], 'is used as a global variable of its package');
+		}
 		return parts.join('.');
 	}
 };

@@ -26,11 +26,11 @@ function match (pattern, text, index) {
 }
 
 function processFile (replacements, globals, loaders, newLoader) {
-	return function (from) {
+	return function (from, module, to) {
 		var name = replacements.hasOwnProperty(from) ? replacements[from] : from,
-			module = './' + from.slice(0, -3),
-			to = path.join(globals.getDist(), from),
 			deps, prologue;
+		module = typeof module == 'string' ? module : './' + from.slice(0, -3);
+		to = typeof to == 'string' ? to : path.join(globals.getDist(), from);
 
 		if (!name) {
 			// skip it
@@ -176,7 +176,7 @@ function generatePrologue (deps, module, name, globals) {
 	}
 	return prologue + '){' + modulePart + assignment + 'f(' +
 		deps.map(function (path) {
-		return path === 'module' ? 'm' : 'window' + variables.buildGetter(globals.getGlobalByModule(path));
+		return path === 'module' ? 'm' : 'window' + variables.buildGetter(globals.getGlobalByModule(path, true));
 	}).join(',') + ');})';
 }
 

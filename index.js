@@ -16,7 +16,7 @@ var packageJson = getJson('./package.json'),
 var replacements = getReplacements(packageJson);
 
 // prepare the globals map
-var globals = new Globals(packageJson);
+var globals = new Globals(packageJson.browserGlobals, packageJson.name);
 
 // construct a list of files
 var files = getFiles(bowerJson, globals.getDist());
