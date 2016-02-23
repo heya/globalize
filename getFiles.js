@@ -39,7 +39,7 @@ Dict.prototype = {
 };
 
 function toFiles (pattern) {
-	return pattern instanceof Array ? pattern : glob.sync(pattern);
+	return pattern instanceof Array ? pattern : glob.sync(pattern, {follow: true});
 }
 
 
