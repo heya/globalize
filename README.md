@@ -333,6 +333,7 @@ correct global variables.
 
 ## Versions
 
+- 1.0.3 &mdash; *Bugfixes: following sym links, and normalizing module names.*
 - 1.0.2 &mdash; *More internal restructuring.*
 - 1.0.1 &mdash; *Internal restructuring to accommodate [grunt-transform-amd](https://github.com/uhop/grunt-transform-amd).*
 - 1.0.0 &mdash; *The initial public release.*
