@@ -19,12 +19,6 @@ var doubleQuotedString = /"((?:\\"|[^"])*)"/g,
 	definePattern = /^\s*define\b\s*/g;
 
 
-function match (pattern, text, index) {
-	pattern.lastIndex = index;
-	var result = pattern.exec(text);
-	return result && result.index === index && result; // look strange? we want to return a result object, or a falsy value
-}
-
 function processFile (globals, loaders, newLoader) {
 	return function (from, module, to) {
 		var deps, prologue;
@@ -87,6 +81,12 @@ function processFile (globals, loaders, newLoader) {
 	};
 }
 
+function match (pattern, text, index) {
+	pattern.lastIndex = index;
+	var result = pattern.exec(text);
+	return result && result.index === index && result; // look strange? we want to return a result object, or a falsy value
+}
+
 function parseDependencies (text, index) {
 	if (!match(startPattern, text, index)) {
 		return null;
@@ -131,6 +131,17 @@ function parseDependencies (text, index) {
 }
 
 function generatePrologue (deps, module, name, globals) {
+	// normalize dependencies
+	deps = deps.map(function (name) {
+		if (name === 'module' || name.charAt(0) !== '.') {
+			return name;
+		}
+		var norm = path.join(path.dirname(module), name);
+		if (!/^\.\//.test(norm)) {
+			norm = './' + norm;
+		}
+		return norm;
+	});
 	// prepare global variables
 	var variables = new VarSet(), needModule = false, g;
 	for (var i = 0; i < deps.length; ++i) {
@@ -162,8 +173,8 @@ function generatePrologue (deps, module, name, globals) {
 	}
 	return prologue + '){' + modulePart + assignment + 'f(' +
 		deps.map(function (path) {
-		return path === 'module' ? 'm' : 'window' + variables.buildGetter(globals.getGlobalByModule(path, true));
-	}).join(',') + ');})';
+			return path === 'module' ? 'm' : 'window' + variables.buildGetter(globals.getGlobalByModule(path, true));
+		}).join(',') + ');})';
 }
 
 
