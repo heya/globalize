@@ -1,6 +1,8 @@
 'use strict';
 
 
+var path = require('path');
+
 var getReplacements = require('./getReplacements');
 var getJson  = require('./getJson');
 var getFiles = require('./getFiles');
@@ -26,4 +28,18 @@ var loaders = ['/* UMD.define */ (typeof define=="function"&&define||function(d,
 
 
 // go over files
-files.forEach(processFile(replacements, globals, loaders));
+var pf = processFile(globals, loaders);
+files.forEach(function (name) {
+	var ext = path.extname(name),
+		mod = './' + (ext ? name.slice(0, -ext.length) : name),
+		from = replacements.hasOwnProperty(name) ? replacements[name] : name,
+		to = path.join(globals.getDist(), name);
+	if (from) {
+		if (name === from) {
+			console.log(name, '=>', to);
+		} else {
+			console.log(name, '=>', from, '=>', to);
+		}
+		pf(from, mod, to);
+	}
+});

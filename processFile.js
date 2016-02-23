@@ -25,20 +25,12 @@ function match (pattern, text, index) {
 	return result && result.index === index && result; // look strange? we want to return a result object, or a falsy value
 }
 
-function processFile (replacements, globals, loaders, newLoader) {
+function processFile (globals, loaders, newLoader) {
 	return function (from, module, to) {
-		var name = replacements.hasOwnProperty(from) ? replacements[from] : from,
-			deps, prologue;
-		module = typeof module == 'string' ? module : './' + from.slice(0, -3);
-		to = typeof to == 'string' ? to : path.join(globals.getDist(), from);
-
-		if (!name) {
-			// skip it
-			return;
-		}
+		var deps, prologue;
 
 		// get source
-		var text = fs.readFileSync(name, 'utf8').split(/\r?\n/);
+		var text = fs.readFileSync(from, 'utf8').split(/\r?\n/);
 
 		do {
 			// check if it is a Heya UMD
@@ -47,13 +39,13 @@ function processFile (replacements, globals, loaders, newLoader) {
 					// process the second line
 					deps = parseDependencies(text[1], 0);
 					if (!deps) {
-						console.error('ERROR: a loader is detected in', name, '- but we cannot parse the dependency list - skipping.');
+						console.error('ERROR: a loader is detected in', from, '- but we cannot parse the dependency list - skipping.');
 						return;
 					}
 					// generate new prologue
-					prologue = generatePrologue(deps, module, name, globals);
+					prologue = generatePrologue(deps, module, from, globals);
 					if (!prologue) {
-						console.error('ERROR: a loader is detected in', name, '- but some dependencies are unknown - skipping.');
+						console.error('ERROR: a loader is detected in', from, '- but some dependencies are unknown - skipping.');
 						return;
 					}
 					text[0] = prologue;
@@ -70,13 +62,13 @@ function processFile (replacements, globals, loaders, newLoader) {
 					// process the first line
 					deps = parseDependencies(text[0], definePattern.lastIndex);
 					if (!deps) {
-						console.error('ERROR: simple define() is detected in', name, '- but we cannot parse the dependency list - skipping.');
+						console.error('ERROR: simple define() is detected in', from, '- but we cannot parse the dependency list - skipping.');
 						return;
 					}
 					// generate new prologue
-					prologue = generatePrologue(deps, module, name, globals);
+					prologue = generatePrologue(deps, module, from, globals);
 					if (!prologue) {
-						console.error('ERROR: simple define() is detected in', name, '- but some dependencies are unknown - skipping.');
+						console.error('ERROR: simple define() is detected in', from, '- but some dependencies are unknown - skipping.');
 						return;
 					}
 					text[0] = prologue + '\n' + text[0].slice(definePattern.lastIndex);
@@ -86,15 +78,9 @@ function processFile (replacements, globals, loaders, newLoader) {
 				break;
 			}
 
-			console.warn('WARNING: no actionable prologue is detected in', name, '- skipping.');
+			console.warn('WARNING: no actionable prologue is detected in', from, '- skipping.');
 			return;
 		} while (false);
-
-		if (name === from) {
-			console.log(from, '=>', to);
-		} else {
-			console.log(from, '=>', name, '=>', to);
-		}
 
 		mkdirp.sync(path.dirname(to));
 		fs.writeFileSync(to, text.join('\n'), 'utf8');
