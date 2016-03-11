@@ -1,5 +1,6 @@
 /node_modules/
 .DS_Store
+coverage/
 
 tests/out
 tests/test-module.js
