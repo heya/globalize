@@ -34,13 +34,13 @@ function processFile (globals, loaders, newLoader) {
 					deps = parseDependencies(text[1], 0);
 					if (!deps) {
 						console.error('ERROR: a loader is detected in', from, '- but we cannot parse the dependency list - skipping.');
-						return;
+						return null;
 					}
 					// generate new prologue
 					prologue = generatePrologue(deps, module, from, globals);
 					if (!prologue) {
 						console.error('ERROR: a loader is detected in', from, '- but some dependencies are unknown - skipping.');
-						return;
+						return null;
 					}
 					text[0] = prologue;
 				} else {
@@ -57,13 +57,13 @@ function processFile (globals, loaders, newLoader) {
 					deps = parseDependencies(text[0], definePattern.lastIndex);
 					if (!deps) {
 						console.error('ERROR: simple define() is detected in', from, '- but we cannot parse the dependency list - skipping.');
-						return;
+						return null;
 					}
 					// generate new prologue
 					prologue = generatePrologue(deps, module, from, globals);
 					if (!prologue) {
 						console.error('ERROR: simple define() is detected in', from, '- but some dependencies are unknown - skipping.');
-						return;
+						return null;
 					}
 					text[0] = prologue + '\n' + text[0].slice(definePattern.lastIndex);
 				} else {
@@ -73,11 +73,15 @@ function processFile (globals, loaders, newLoader) {
 			}
 
 			console.warn('WARNING: no actionable prologue is detected in', from, '- skipping.');
-			return;
+			return null;
 		} while (false);
 
-		mkdirp.sync(path.dirname(to));
-		fs.writeFileSync(to, text.join('\n'), 'utf8');
+		if (to) {
+			mkdirp.sync(path.dirname(to));
+			fs.writeFileSync(to, text.join('\n'), 'utf8');
+		}
+
+		return text;
 	};
 }
 

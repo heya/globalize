@@ -1,6 +1,8 @@
 'use strict';
 
 
+var path = require('path');
+
 var glob = require('glob');
 
 
@@ -52,13 +54,13 @@ function normalizePattern (pattern) {
 }
 
 
-module.exports = function (bowerJson, dist) {
-	var dict = new Dict(), files = glob.sync('**/*.js');
+module.exports = function (bowerJson, globals) {
+	var dict = new Dict(), files = glob.sync(path.join(globals.getFrom(), '**/*.js'));
 
 	dict.add(files);
 	dict.remove(normalizePattern('node_modules'));
 	dict.remove(normalizePattern('bower_components'));
-	dict.remove(normalizePattern(dist));
+	dict.remove(normalizePattern(globals.getDist()));
 
 	if (bowerJson && bowerJson.ignore && bowerJson.ignore instanceof Array) {
 		bowerJson.ignore.forEach(function (pattern) {

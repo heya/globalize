@@ -10,6 +10,8 @@ This utility is a simple source transformer for JavaScript modules written using
 It produces JavaScript modules, which use globals as their dependences and exports. Such modules can be directly including into HTML with
 `<script>`, or concatenated and minified by a builder of your choice.
 
+If your project uses [grunt](http://gruntjs.com/), consider using [grunt-transform-amd](https://github.com/uhop/grunt-transform-amd), which is based on this project.
+
 ## Install
 
 ```sh
@@ -50,12 +52,12 @@ such as `grunt` or `gulp` runners. See [npm-scripts](https://docs.npmjs.com/misc
 
 ## Configuration
 
-The converter takes its configuraton from two sources:
+The converter takes its configuraton from following sources:
 
 * `package.js` with following sections used:
+  * [`main`](https://docs.npmjs.com/files/package.json#main) can be used indirectly by `browser` section.
+  * [`name`](https://docs.npmjs.com/files/package.json#name) to provide a default for a global variable that will host package modules.
   * [`browser`](https://github.com/defunctzombie/package-browser-field-spec) to rename/skip files, while preparing a distribution for a browser.
-    * [`main`](https://docs.npmjs.com/files/package.json#main) can be used indirectly by `browser` section.
-    * [`name`](https://docs.npmjs.com/files/package.json#name) to provide a default for a global variable that will host package modules.
   * `browserGlobals` to define how modules mapped to globals. This section is described in details below.
 * `bower.json` with following sections used:
   * [`ignore`](https://github.com/bower/spec/blob/master/json.md#ignore) to skip files, while preparing a distribution for a browser.
@@ -70,6 +72,7 @@ There are two special keys:
 * `!root` &mdash; a root variable to resolve all local modules. For example, if `!root` is  `heya.example`, `./a` will be resolved as `heya.example.a`.
   Default: `name` of the package taken from `package.json`.
 * `!dist` &mdash; a folder name where to copy all transformed files. Default: `dist`.
+* `!from` &mdash; a folder name to serve as a root for source files. Default: `.`.
 
 Some modules modify existing packages by augmented their exports. They do not create their own globals using existing ones. In this case,
 a value of such module should be a global variable to use when referring to this module, but it should be prefixed with `'!'`.

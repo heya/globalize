@@ -21,6 +21,12 @@ function Globals (browserGlobals, name) {
 	if (!this.globals['!dist']) {
 		this.globals['!dist'] = 'dist';
 	}
+
+	if (!this.globals['!from']) {
+		this.globals['!from'] = '.';
+	}
+
+	this.cwd = path.join(CWD, this.globals['!from']);
 }
 
 Globals.prototype = {
@@ -30,16 +36,19 @@ Globals.prototype = {
 	getDist: function () {
 		return this.globals['!dist'];
 	},
+	getFrom: function () {
+		return this.globals['!from'];
+	},
 	getGlobalByModule: function (name, silent) {
 		if (name.charAt(0) === '.') {
 			// local file
-			var fullName = path.join(CWD, name);
-			if (CWD !== fullName.slice(0, CWD.length) || CWD.charAt(CWD.length - 1) !== '/' && fullName.charAt(CWD.length) !== '/') {
+			var fullName = path.join(this.cwd, name);
+			if (this.cwd !== fullName.slice(0, this.cwd.length) || this.cwd.charAt(this.cwd.length - 1) !== '/' && fullName.charAt(this.cwd.length) !== '/') {
 				console.error('ERROR: local file', name, 'is outside of the root.');
 				return '';
 			}
 			// normalize to use './' form
-			var size = CWD.length;
+			var size = this.cwd.length;
 			if (fullName.charAt(size) === '/') {
 				++size;
 			}
