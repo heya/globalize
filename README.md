@@ -72,9 +72,9 @@ There are two special keys:
 * `!root` &mdash; a root variable to resolve all local modules. For example, if `!root` is  `heya.example`, `./a` will be resolved as `heya.example.a`.
   Default: `name` of the package taken from `package.json`.
 * `!dist` &mdash; a folder name where to copy all transformed files. Default: `dist`.
-* `!from` &mdash; a folder name to serve as a root for source files. Default: `.`.
+* `!from` &mdash; a folder name to serve as a root for source files. Default: the project's top folder.
 
-Some modules modify existing packages by augmented their exports. They do not create their own globals using existing ones. In this case,
+Some modules modify existing packages by augmenting their exports. They do not create their own globals using existing ones. In this case,
 a value of such module should be a global variable to use when referring to this module, but it should be prefixed with `'!'`.
 This prefix means that modules result is not assigned anywhere on its definition, the rest defines how to access it.
 
