@@ -16,6 +16,15 @@ var prologueImport  = require('./prologueImport');
 // loaders
 var loaders = ['/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})'];
 
+// help
+if (process.argv.some(function (arg) { return arg === '--help' || arg === '-h'; })) {
+	console.log('Use: node heya-globalize/index.js [--amd|--cjs|--es6]');
+	console.log('--amd generates an AMD prologue.');
+	console.log('--cjs generates an CommonJS prologue.');
+	console.log('--es6 generates an ES6 module prologue.');
+	console.log('Otherwise, a prologue based on browser globals is generated.');
+	process.exit(2);
+}
 
 // fetch JSON files
 var packageJson = getJson('./package.json'),
@@ -39,12 +48,12 @@ if (process.argv.length > 2) {
 			console.log('converting to AMD...');
 			newLoader = 'define';
 			break;
-		case '--require':
-			console.log('converting to require()...');
+		case '--cjs':
+			console.log('converting to CommonJS...');
 			newLoader = prologueRequire;
 			break;
-		case '--import':
-			console.log('converting to ES6 import...');
+		case '--es6':
+			console.log('converting to ES6 modules...');
 			newLoader = prologueImport;
 			break;
 	}
