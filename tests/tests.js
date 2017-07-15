@@ -27,6 +27,16 @@ function dump (name, end) {
 	};
 }
 
+function sleep (ms) {
+	return function () {
+		return new Promise(function (resolve) {
+			setTimeout(function () {
+				resolve(ms);
+			}, ms);
+		});
+	};
+}
+
 dump('prologue.js')().
 	then(dump('out/c.js')).
 	then(dump('out/b.js')).
@@ -35,6 +45,7 @@ dump('prologue.js')().
 	then(dump('out/e.js')).
 	then(dump('out/f.js')).
 	then(dump('epilogue.js', true)).
+	then(sleep(200)).
 	then(function () {
 		var test = require('./test-module');
 		process.exit(test() ? 0 : 2);
