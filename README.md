@@ -186,10 +186,10 @@ The precise algorithm works like that:
 3. Certain directories are always excluded:
    1. `node_modules`
    2. `bower_components`
-   3. The `dist` directory (can be overridden in `!dict` value of `browserGlobals` section of `package.json`).
+   3. The `dist` directory (can be overridden in `!dist` value of `browserGlobals` section of `package.json`).
 4. Directories and files from `ignore` section of `bower.json`, if any, are excluded too.
 5. The remaining files are processed one by one. The result of a successful transformation is copied to
-   `dist` directory (can be overridden in `!dict` value of `browserGlobals` section of `package.json`)
+   `dist` directory (can be overridden in `!dist` value of `browserGlobals` section of `package.json`)
    preserving the directory structure.
 
 The latter step means that files are copied like that:
@@ -198,7 +198,7 @@ The latter step means that files are copied like that:
 ./a.js    => ./dist/a.js
 ./b.js    => ./dist/b.js
 ./b/c.js  => ./dist/b/c.js
-.d/e/f.js => ./dist/d/e/f.js
+./d/e/f.js => ./dist/d/e/f.js
 ```
 
 When files are processed they are checked against a standard Heya-style UMD header (it covers both AMD and CommonJS-style modules, but no globals), or a simple AMD header (the very first line starts with `define(`, and lists all dependencies as an array of strings). If a file is not identified as one of those, it is ignored and skipped.
