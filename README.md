@@ -2,7 +2,6 @@
 
 [![Build status][travis-image]][travis-url]
 [![Dependencies][deps-image]][deps-url]
-[![devDependencies][dev-deps-image]][dev-deps-url]
 [![NPM version][npm-image]][npm-url]
 
 
