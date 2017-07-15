@@ -7,8 +7,8 @@
 
 
 This utility is a simple source transformer for JavaScript modules written using either a Heya-style UMD prologue, or a simple AMD prologue.
-It produces JavaScript modules, which use globals as their dependences and exports. Such modules can be directly including into HTML with
-`<script>`, or concatenated and minified by a builder of your choice.
+It can produce JavaScript modules, which use browser globals as their dependences and exports. Such modules can be directly including into HTML with `<script>`, or concatenated and minified by a builder of your choice.
+Additionally it can convert to AMD, CommonJS, or ES6 modules.
 
 If your project uses [grunt](http://gruntjs.com/), consider using [grunt-transform-amd](https://github.com/uhop/grunt-transform-amd), which is based on this project.
 
@@ -23,12 +23,15 @@ npm install --save-dev heya-globalize
 For simplicity `heya-globalize` does not install a global command opting to be called directly:
 
 ```sh
-node node_modules/heya-globalize/index.js
+node node_modules/heya-globalize/index.js        # converts to browser globals
+node node_modules/heya-globalize/index.js --amd  # converts to AMD
+node node_modules/heya-globalize/index.js --cjs  # converts to CommonJS
+node node_modules/heya-globalize/index.js --es6  # converts to ES6 modules
 ```
 
-This command will convert all files that is detected as Heya-style UMD or simple AMD to globals copying them to a folder of your choice (`dist` by default).
+This command will convert all files that is detected as Heya-style UMD or simple AMD to globals copying them to a folder of your choice (`dist` by default). Alternative versions with an explicit option will generate AMD, CommonJS, or ES6 modules.
 
-It is adviseable to add it to a `package.json` file of a project in question in `scripts` section, so it is always available:
+It is advisable to add it to a `package.json` file of a project in question in `scripts` section, so it is always available:
 
 ```js
 {
@@ -47,25 +50,24 @@ This script can be invoked like that:
 npm run dist
 ```
 
-It is possible to run the script on at lifecycle events, e.g., after installing that package, or integrate with existing project tooling,
-such as `grunt` or `gulp` runners. See [npm-scripts](https://docs.npmjs.com/misc/scripts) for more details on scripts.
+It is possible to run the script on at lifecycle events, e.g., after installing that package, or integrate with existing project tooling, such as `grunt` or `gulp` runners. See [npm-scripts](https://docs.npmjs.com/misc/scripts) for more details on scripts.
 
 ## Configuration
 
-The converter takes its configuraton from following sources:
+The converter takes its configuration from following sources:
 
 * `package.js` with following sections used:
   * [`main`](https://docs.npmjs.com/files/package.json#main) can be used indirectly by `browser` section.
   * [`name`](https://docs.npmjs.com/files/package.json#name) to provide a default for a global variable that will host package modules.
   * [`browser`](https://github.com/defunctzombie/package-browser-field-spec) to rename/skip files, while preparing a distribution for a browser.
   * `browserGlobals` to define how modules mapped to globals. This section is described in details below.
+    * AMD/CommonJS/ES6 modes ignore the mapping itself, but still respect directory settings, like `!dist` and `!from`.
 * `bower.json` with following sections used:
   * [`ignore`](https://github.com/bower/spec/blob/master/json.md#ignore) to skip files, while preparing a distribution for a browser.
 
 ### `browserGlobals`
 
-This section of `package.json` can contain a simple key/value pairs as an object, where keys are module names, and values are corresponding
-globals. If a module is not listed there, its parents will be checked. If a parent is specified, it will be used to form an accessor.
+This section of `package.json` can contain a simple key/value pairs as an object, where keys are module names, and values are corresponding globals. If a module is not listed there, its parents will be checked. If a parent is specified, it will be used to form an accessor.
 
 There are two special keys:
 
@@ -74,9 +76,7 @@ There are two special keys:
 * `!dist` &mdash; a folder name where to copy all transformed files. Default: `dist`.
 * `!from` &mdash; a folder name to serve as a root for source files. Default: the project's top folder.
 
-Some modules modify existing packages by augmenting their exports. They do not create their own globals using existing ones. In this case,
-a value of such module should be a global variable to use when referring to this module, but it should be prefixed with `'!'`.
-This prefix means that modules result is not assigned anywhere on its definition, the rest defines how to access it.
+Some modules modify existing packages by augmenting their exports. They do not create their own globals using existing ones. In this case, a value of such module should be a global variable to use when referring to this module, but it should be prefixed with `'!'`. This prefix means that modules result is not assigned anywhere on its definition, the rest defines how to access it.
 
 External modules should be always resolved explicitly in `browserGlobals`.
 
@@ -202,9 +202,7 @@ The latter step means that files are copied like that:
 .d/e/f.js => ./dist/d/e/f.js
 ```
 
-When files are processed they are checked against a standard Heya-style UMD header (it covers both AMD and CommonJS-style modules,
-but no globals), ar a simple AMD header (the very first line starts with `define(`, and lists all dependencies as an array of strings).
-If a file is not identified as one of those, it is ignored and skipped.
+When files are processed they are checked against a standard Heya-style UMD header (it covers both AMD and CommonJS-style modules, but no globals), or a simple AMD header (the very first line starts with `define(`, and lists all dependencies as an array of strings). If a file is not identified as one of those, it is ignored and skipped.
 
 While resolving module names, the directory structure is preserved as well, and reflected as subobjects using
 a dot or `[]` notation (whichever is more appropriate). Important details:
@@ -330,12 +328,83 @@ define(["./b", "./c"], function(b, c){});
 (["./b", "./c"], function(b, c){});
 ```
 
-As can be seen, the same module functions are used with new prologues, which replaces `define()` or an Heya-style UMD prologue,
-which itself approximates `define()` as well. New prologues form identical arguments using globals, and assign their results to
-correct global variables.
+As can be seen, the same module functions are used with new prologues, which replaces `define()` or an Heya-style UMD prologue, which itself approximates `define()` as well. New prologues form identical arguments using globals, and assign their results to correct global variables.
+
+## Converting to AMD
+
+This mode behaves just like the browser globals mode, but produces AMD modules. It is invoked like that:
+
+```sh
+node node_modules/heya-globalize/index.js --amd
+```
+
+### Example: AMD
+
+Using `a.js` above:
+
+`a.js` was copied to `dist/a.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+(["./b", "./c"], function(b, c){});
+
+// after
+define
+(["./b", "./c"], function(b, c){});
+```
+
+## Converting to CommonJS
+
+This mode behaves just like the browser globals mode, but produces CommonJS modules. It is invoked like that:
+
+```sh
+node node_modules/heya-globalize/index.js --cjs
+```
+
+### Example: CommonJS
+
+Using `a.js` above:
+
+`a.js` was copied to `dist/a.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+(["./b", "./c"], function(b, c){});
+
+// after
+(function(_,f){module.exports=f(require("./b"),require("./c"));})
+(["./b", "./c"], function(b, c){});
+```
+
+## Converting to ES6 module
+
+This mode behaves just like the browser globals mode, but produces ES6 modules compatible with [Babel](https://babeljs.io/). It is invoked like that:
+
+```sh
+node node_modules/heya-globalize/index.js --es6
+```
+
+### Example: ES6 module
+
+Using `a.js` above:
+
+`a.js` was copied to `dist/a.js`:
+
+```js
+// before
+/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
+(["./b", "./c"], function(b, c){});
+
+// after
+import m0 from "./b";import m1 from "./c";export default ((_,f)=>f(m0,m1))
+(["./b", "./c"], function(b, c){});
+```
 
 ## Versions
 
+- 1.1.0 &mdash; *Added new prologue generators: AMD, CommonJS, ES6 modules.*
 - 1.0.3 &mdash; *Bugfixes: following sym links, and normalizing module names.*
 - 1.0.2 &mdash; *More internal restructuring.*
 - 1.0.1 &mdash; *Internal restructuring to accommodate [grunt-transform-amd](https://github.com/uhop/grunt-transform-amd).*
