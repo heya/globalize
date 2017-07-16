@@ -22,13 +22,25 @@ npm install --save-dev heya-globalize
 For simplicity `heya-globalize` does not install a global command opting to be called directly:
 
 ```sh
-node node_modules/heya-globalize/index.js        # converts to browser globals
-node node_modules/heya-globalize/index.js --amd  # converts to AMD
-node node_modules/heya-globalize/index.js --cjs  # converts to CommonJS
-node node_modules/heya-globalize/index.js --es6  # converts to ES6 modules
+node node_modules/heya-globalize/index.js
+node node_modules/heya-globalize/index.js --amd
+node node_modules/heya-globalize/index.js --cjs
+node node_modules/heya-globalize/index.js --es6
 ```
 
-This command will convert all files that is detected as Heya-style UMD or simple AMD to globals copying them to a folder of your choice (`dist` by default). Alternative versions with an explicit option will generate AMD, CommonJS, or ES6 modules.
+This command will convert all files that is detected as Heya-style UMD or simple AMD to globals copying them to a folder of your choice (`dist` by default). Alternative versions with an explicit option will generate AMD, CommonJS, or ES6 modules. Additional options allow to specify a source directory for files to be copied, and a target directory for transformed files.
+
+Full list of available options:
+
+* Format of generated modules:
+  * `--amd` &mdash; generate simple AMD prologue. This option is useful to remove UMD prologues to conserve space.
+  * `--cjs` &mdash; generate CommonJS prologue using static `require()` calls, and assigning the module result to `module.exports`.
+  * `--es6` &mdash; generate ES6 module prologue using static `import` statements, and declaring the module result as `export default`.
+  * Otherwise, if no above options are specified, an optimized prologue is generated, which relies on browser globals, and can assign the module result to a global as well.
+* Directories:
+  * `--source=src` &mdash; process files from `src` directory, and its sub-directories. If specified, it overrides a value specified by `browserGlobal["!from"]` variable of `package.json` described below.
+  * `--target=trg` &mdash; save processed files in `trg` directory retaining the original sub-directories. If specified, it overrides a value specified by `browserGlobal["!dist"]` variable of `package.json` described below.
+  * `--config=cfg` &mdash; use configuration files (`package.json`, `bower.json`) from `cfg` directory. Default: `"."` (the current directory).
 
 It is advisable to add it to a `package.json` file of a project in question in `scripts` section, so it is always available:
 
@@ -403,6 +415,7 @@ import m0 from "./b";import m1 from "./c";export default ((_,f)=>f(m0,m1))
 
 ## Versions
 
+- 1.2.0 &mdash; *Added command-line parameters to override configuration.*
 - 1.1.0 &mdash; *Added new prologue generators: AMD, CommonJS, ES6 modules.*
 - 1.0.3 &mdash; *Bugfixes: following sym links, and normalizing module names.*
 - 1.0.2 &mdash; *More internal restructuring.*
