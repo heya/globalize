@@ -1,6 +1,6 @@
 {
   "name": "heya-globalize",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Make a browser version of JS files using globals from a Heya-style UMD, or a simple AMD.",
   "main": "index.js",
   "scripts": {

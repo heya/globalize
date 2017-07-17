@@ -409,12 +409,13 @@ Using `a.js` above:
 (["./b", "./c"], function(b, c){});
 
 // after
-import m0 from "./b";import m1 from "./c";export default ((_,f)=>f(m0,m1))
+import m0 from "./b";import m1 from "./c";export default (function(_,f){return f(m0,m1);})
 (["./b", "./c"], function(b, c){});
 ```
 
 ## Versions
 
+- 1.2.1 &mdash; *Bugfix: more conservative ES6 module prologue.*
 - 1.2.0 &mdash; *Added command-line parameters to override configuration.*
 - 1.1.0 &mdash; *Added new prologue generators: AMD, CommonJS, ES6 modules.*
 - 1.0.3 &mdash; *Bugfixes: following sym links, and normalizing module names.*
