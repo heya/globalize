@@ -2,6 +2,7 @@
 
 [![Build status][travis-image]][travis-url]
 [![Dependencies][deps-image]][deps-url]
+[![devDependencies][dev-deps-image]][dev-deps-url]
 [![NPM version][npm-image]][npm-url]
 
 
@@ -433,6 +434,6 @@ BSD
 [deps-image]:     https://img.shields.io/david/heya/globalize.svg
 [deps-url]:       https://david-dm.org/heya/globalize
 [dev-deps-image]: https://img.shields.io/david/dev/heya/globalize.svg
-[dev-deps-url]:   https://david-dm.org/heya/globalize#info=devDependencies
+[dev-deps-url]:   https://david-dm.org/heya/globalize?type=dev
 [travis-image]:   https://img.shields.io/travis/heya/globalize.svg
 [travis-url]:     https://travis-ci.org/heya/globalize
