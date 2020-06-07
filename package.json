@@ -20,7 +20,7 @@
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "glob": "^7.0.0",
+    "glob": "^7.1.6",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1"
   },
